@@ -10,6 +10,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.2"
+    "dotenv": "^5.0.0",
+    "express": "^4.16.2",
+    "mssql": "^4.1.0",
+    "rxjs": "^5.5.6",
+    "tedious": "^2.2.4"
+  },
+  "devDependencies": {
+    "colors": "^1.1.2",
+    "prettyjson": "^1.2.1"
   }
 }

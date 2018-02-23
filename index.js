@@ -13,9 +13,14 @@ let dbService = new DbService();
 
 const PORT = process.env.PORT || 8080;
 
-app.get('/', function (req, res) {
+app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin' , '*');
+  next();
+});
+
+app.get('/api/users', function (req, res) {
   dbService
-  .query('Select * from sys.Databases GO')
+  .query('Select id, login from USERS')
   .subscribe((query) => {
     res.send(query);
   });

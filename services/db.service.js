@@ -7,7 +7,7 @@ require('rxjs/add/observable/fromPromise');
 class DbService {
 
   constructor() {
-    this.instance = null;
+    this.instanceRequest = null;
     this.dbUrl = `mssql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
   }
 
@@ -17,10 +17,10 @@ class DbService {
       .then(pool => pool.request())
       .catch(err => console.log(err.red))
     ).map(request => {
-      this.instance = request;
+      this.instanceRequest = request;
       return request;
     });
-     
+
     sql.on('error', err => console.log(err.red));
   }
 
@@ -28,13 +28,30 @@ class DbService {
     console.log(queryString.cyan);
 
     return Observable.fromPromise(
-      this.instance.query(queryString)
+      this.instanceRequest.query(queryString)
       .then(({ recordsets }) => {
         console.log(prettyjson.render(recordsets))
         return recordsets;
       })
       .catch(err => console.log(err))
     ).map(recordsets => recordsets);
+  }
+
+  execute(procName, values) {
+    console.log(procName.cyan);
+    console.log(prettyjson.render(values));
+
+    this.instanceRequest.output('status');
+
+    for (let v in values) {
+      this.instanceRequest.input(`${v}`, values[v]);
+    }
+
+    return Observable.fromPromise(
+      this.instanceRequest.execute(procName)
+      .then((response) => response)
+      .catch(err => console.log(err))
+    ).map(response => response);
   }
 }
 

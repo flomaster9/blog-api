@@ -21,7 +21,7 @@ app.use(express.json());
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin' , '*');
   res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+  res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT,DELETE");
   res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
   next();
 });
@@ -63,6 +63,25 @@ app.post('/api/posts', (req, res) => {
   }
 });
 
+app.put('/api/posts', (req, res) => {
+  let userId = authorization(req);
+
+  if (!userId) {
+    res.send({status: null});
+  } else {
+    let { title, content, id } = req.body;
+
+    dbService
+    .query(`Update POSTS SET title = '${title}', content = '${content}' where userId = '${userId}' and Id = '${id}'`)
+    .subscribe((query) => {
+      res.send({status: 1});
+    });
+  }
+});
+
+// UPDATE Planets
+// SET HavingRings = 'No', ID = NULL
+
 app.get('/api/posts', (req, res) => {
   let { userId } = req.query
   dbService
@@ -70,6 +89,21 @@ app.get('/api/posts', (req, res) => {
   .subscribe((query) => {
     res.send(query);
   });
+});
+
+app.delete('/api/posts', (req, res) => {
+  let userId = authorization(req);
+
+  let { postId } = req.query
+  if (!userId) {
+    res.send({status: null});
+  } else {
+    dbService
+    .query(`Delete from POSTS where Id = '${postId}' and userId = '${userId}'`)
+    .subscribe((query) => {
+      res.send({status: 1});
+    });
+  }
 });
 
 app.get('/api/users', (req, res) => {

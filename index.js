@@ -11,7 +11,6 @@ let DbService = require('./services/db.service');
 let Observable = require('rxjs/Observable').Observable;
 require('rxjs/add/operator/map');
 require('rxjs/add/observable/fromPromise');
-require('rxjs/add/operator/switchMap');
 
 let dbService = new DbService();
 
@@ -23,8 +22,54 @@ app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin' , '*');
   res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-  res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+  res.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
   next();
+});
+
+function authorization(req) {
+  if (req.headers && req.headers.authorization) {
+    var authorization = req.headers.authorization.split(' ')[1];
+    var decoded = jwt.verify(authorization, 'secret');
+    var userId = decoded.id;
+    return userId;
+  } else {
+    return null;
+  }
+}
+
+app.post('/api/posts', (req, res) => {
+  let userId = authorization(req);
+
+  if (!userId) {
+    res.send({status: null});
+  } else {
+    let { title, content } = req.body;
+
+    let inputParams = {
+      pTitle: title,
+      pContent: content,
+      pUserId: userId
+    }
+  
+    let outputParams = {
+      status: null
+    }
+
+    dbService
+    .execute('createPost', inputParams, outputParams)
+    .subscribe((query) => {
+      res.send(query);
+    });
+  }
+});
+
+app.get('/api/posts', (req, res) => {
+  let { userId } = req.query
+  dbService
+  .query(`Select id, title, content from POSTS where userId = '${userId}'`)
+  .subscribe((query) => {
+    res.send(query);
+  });
 });
 
 app.get('/api/users', (req, res) => {
@@ -70,7 +115,6 @@ app.post('/api/authenticate', (req, res) => {
   dbService
   .execute('loginUser', inputParams, outputParams)
   .subscribe((query) => {
-    console.log(query);
     let userId = query && query.output && query.output.userId;
 
     if (userId == 'null' || !userId) {

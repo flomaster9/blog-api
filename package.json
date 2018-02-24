@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^5.0.0",
     "express": "^4.16.2",
+    "jsonwebtoken": "^8.1.1",
     "mssql": "^4.1.0",
     "rxjs": "^5.5.6",
     "tedious": "^2.2.4"

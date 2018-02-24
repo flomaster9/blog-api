@@ -33,25 +33,33 @@ class DbService {
         console.log(prettyjson.render(recordsets))
         return recordsets;
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err);
+        return err;
+      })
     ).map(recordsets => recordsets);
   }
 
-  execute(procName, values) {
+  execute(procName, input, output) {
     console.log(procName.cyan);
-    console.log(prettyjson.render(values));
+    console.log(prettyjson.render(input));
+    console.log(prettyjson.render(output));
 
-    this.instanceRequest.output('status');
+    this.instanceRequest.parameters = {};
 
-    for (let v in values) {
-      this.instanceRequest.input(`${v}`, values[v]);
+    for (let i in input) {
+      this.instanceRequest.input(`${i}`, input[i]);
+    }
+
+    for (let o in output) {
+      this.instanceRequest.output(`${o}`, input[o]);
     }
 
     return Observable.fromPromise(
       this.instanceRequest.execute(procName)
       .then((response) => response)
       .catch(err => console.log(err))
-    ).map(response => response);
+    )
   }
 }
 

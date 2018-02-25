@@ -114,6 +114,29 @@ app.get('/api/users', (req, res) => {
   });
 });
 
+app.get('/api/search-users', (req, res) => {
+  let { fullMatch, login } = req.query
+
+  if (fullMatch === "true") {
+    dbService
+    .query(`SELECT * FROM findFullMatchUser('${login}')`)
+    .subscribe((query) => {
+      res.send(query);
+    })
+  } else {
+    let inputParams = {
+      pLogin: login
+    }
+
+    dbService
+    .execute('getAllMatchingUser', inputParams)
+    .subscribe((query) => {
+      res.send(query.recordsets)
+    });
+  }
+
+});
+
 app.post('/api/users', (req, res) => {
 
   let { login, password } = req.body;

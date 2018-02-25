@@ -42,8 +42,8 @@ class DbService {
 
   execute(procName, input, output) {
     console.log(procName.cyan);
-    console.log(prettyjson.render(input));
-    console.log(prettyjson.render(output));
+    input && console.log(prettyjson.render(input));
+    output && console.log(prettyjson.render(output));
 
     this.instanceRequest.parameters = {};
 
@@ -51,8 +51,10 @@ class DbService {
       this.instanceRequest.input(`${i}`, input[i]);
     }
 
-    for (let o in output) {
-      this.instanceRequest.output(`${o}`, input[o]);
+    if (output) {
+      for (let o in output) {
+        this.instanceRequest.output(`${o}`, input[o]);
+      }
     }
 
     return Observable.fromPromise(

@@ -165,15 +165,10 @@ app.post('/api/authenticate', (req, res) => {
     pPassword: password
   }
 
-  let outputParams = {
-    userId: null
-  }
-
   dbService
-  .execute('loginUser', inputParams, outputParams)
+  .execute('loginUser', inputParams)
   .subscribe((query) => {
-    let userId = query && query.output && query.output.userId;
-
+    let userId = query && query.recordset && query.recordset[0] && query.recordset[0].id;
     if (userId == 'null' || !userId) {
       res.send({currentUser: null});
     } else {

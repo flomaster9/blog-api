@@ -72,7 +72,7 @@ app.put('/api/posts', (req, res) => {
     let { title, content, id } = req.body;
 
     dbService
-    .query(`Update POSTS SET title = '${title}', content = '${content}' where userId = '${userId}' and Id = '${id}'`)
+    .query(`Update POSTS SET title = '${title}', content = '${content}', created_at = GETDATE() where userId = '${userId}' and Id = '${id}'`)
     .subscribe((query) => {
       res.send({status: 1});
     });
@@ -85,7 +85,7 @@ app.put('/api/posts', (req, res) => {
 app.get('/api/posts', (req, res) => {
   let { userId } = req.query
   dbService
-  .query(`Select id, title, content from POSTS where userId = '${userId}'`)
+  .query(`Select id, title, content, created_at from POSTS where userId = '${userId}'`)
   .subscribe((query) => {
     res.send(query);
   });
@@ -108,7 +108,7 @@ app.delete('/api/posts', (req, res) => {
 
 app.get('/api/users', (req, res) => {
   dbService
-  .query('Select id, login from USERS')
+  .query(`SELECT * FROM UsersParams()`)
   .subscribe((query) => {
     res.send(query);
   });
